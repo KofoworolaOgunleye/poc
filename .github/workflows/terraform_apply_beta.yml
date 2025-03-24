@@ -1,0 +1,50 @@
+name: Beta Apply Run
+description: "Automated production release"
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+env:
+  TF_CLOUD_ORGANIZATION: "oak-national-academy"
+  TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
+  TF_WORKSPACE: "curr-kofo"
+  CONFIG_DIRECTORY: "./"
+
+permissions:
+  contents: read
+
+jobs:
+  beta_apply:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set tag_id from Git ref
+        run: |
+          echo "TF_VAR_tag_id=\"${{ github.ref_name }}\"" >> $GITHUB_ENV
+          echo "Set TF_VAR_tag_id to ${{ github.ref_name }}"
+
+      - name: Upload Configuration
+        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+        id: apply-upload
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          directory: ${{ env.CONFIG_DIRECTORY }}
+
+      - name: Create Apply Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+        id: apply-run
+        with:
+          workspace: ${{ env.TF_WORKSPACE }}
+          configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+
+      - name: Apply
+        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
+        id: apply
+        with:
+          run: ${{ steps.apply-run.outputs.run_id }}
+          comment: " Staging Apply Run from GitHub Actions CI ${{ github.sha }}"
+    
