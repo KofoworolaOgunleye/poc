@@ -28,9 +28,6 @@ resource "google_storage_bucket" "example" {
     enabled = false
   }
 
-  labels = {
-    version = var.tag_id
-  }
 }
 
 output "bucket_name" {
