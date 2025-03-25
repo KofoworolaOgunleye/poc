@@ -19,12 +19,8 @@ provider "google" {
   region  = "europe-west2"
 }
 
-locals {
-  sanitized_tag_id = replace(var.tag_id, ".", "-")
-}
-
 resource "google_storage_bucket" "example" {
-  name     = "my-appkk-${local.sanitized_tag_id}"
+  name     = "my-appkk"
   location = "europe-west2"
   force_destroy = true
 
