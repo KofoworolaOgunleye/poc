@@ -29,7 +29,7 @@ resource "google_storage_bucket" "example" {
   }
 
 }
-
+#test
 output "bucket_name" {
   value = google_storage_bucket.example.name
 }
