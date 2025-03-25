@@ -47,5 +47,5 @@ jobs:
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
         id: apply
         with:
-          run: ${{ steps.create-run.outputs.run_id }}
+          run: ${{ steps.apply-run.outputs.run_id }}
           comment: "Production Apply Run triggered by GitHub Actions CI (commit ${{ github.sha }})"

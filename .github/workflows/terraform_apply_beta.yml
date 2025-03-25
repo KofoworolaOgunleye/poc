@@ -1,5 +1,5 @@
-name: Beta Apply Run
-description: "Automated production release"
+name: Apply to Beta
+description: "Automated Beta release"
 
 on:
   push:
@@ -11,11 +11,9 @@ env:
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
   TF_WORKSPACE: "curr-kofo"
   CONFIG_DIRECTORY: "./"
-  # GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
 permissions:
   contents: read
-  # id-token: write
 
 jobs:
   beta_apply:
