@@ -8,3 +8,4 @@ terraform.rc
 *.tfvars
 *.tfvars.json
 .terraform/
+node_modules/
