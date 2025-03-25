@@ -11,6 +11,11 @@ on:
   push:
     branches:
       - main
+
+permissions:
+  contents: write
+  issues: write
+  pull-requests: write
   
 jobs:
   semantic_release:
@@ -36,4 +41,4 @@ jobs:
         id: semantic_release
         run: npx semantic-release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}0
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
