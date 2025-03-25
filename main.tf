@@ -20,7 +20,7 @@ provider "google" {
 }
 
 resource "google_storage_bucket" "example" {
-  name     = "my-app-${replace(var.tag_id, ".", "-")}"
+  name     = "my-appkk-${replace(var.tag_id, ".", "-")}"
   location = "europe-west2"
   force_destroy = true
 
