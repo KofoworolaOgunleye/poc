@@ -11,6 +11,8 @@ on:
   push:
     branches:
       - main
+    paths-ignore:
+      - "CHANGE_LOG.md"
 
 permissions:
   contents: write
@@ -23,6 +25,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Use Node.js
         uses: actions/setup-node@v3
