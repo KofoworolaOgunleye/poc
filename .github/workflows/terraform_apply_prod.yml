@@ -1,10 +1,6 @@
 name: Deploy to Production
 
 on:
-#   workflow_run:
-#     workflows: ["Beta Apply Run"] 
-#     types:
-#       - completed
   workflow_dispatch: 
     inputs:
       tag_id:
@@ -30,14 +26,8 @@ jobs:
       - name: Set tag_id for production
         id: set_tag_id
         run: |
-          # If manually triggered and a tag_id was provided, use it.
-          if [ "${{ github.event_name }}" == "workflow_dispatch" ] && [ -n "${{ github.event.inputs.tag_id }}" ]; then
             echo "Using manually provided tag_id: ${{ github.event.inputs.tag_id }}"
             echo "TF_VAR_tag_id=\"${{ github.event.inputs.tag_id }}\"" >> $GITHUB_ENV
-          else
-            echo "TF_VAR_tag_id=\"${{ github.ref_name }}\"" >> $GITHUB_ENV
-            echo "Set TF_VAR_tag_id to ${{ github.ref_name }}"
-          fi
 
       - name: Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
