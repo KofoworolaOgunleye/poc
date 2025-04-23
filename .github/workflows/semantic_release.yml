@@ -51,7 +51,7 @@ jobs:
         env:
           SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
           TOKEN_2: ${{ secrets.TF_API_TOKEN }}
-          TOKEN_3: ${{ secrets.TF_API_TOKEN }}
+          TOKEN_3: ${{ secrets.TEST_SECRET }}
         run: |
           echo "$SECRET_TOKEN" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
           echo "$TOKEN_2" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
