@@ -35,7 +35,6 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
-          speculative: true
           plan_only: true
 
       # - name: Upload Configuration
@@ -66,55 +65,55 @@ jobs:
         with:
           github-token: ${{ env.GITHUB_TOKEN }}
           # github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const owner  = context.repo.owner;
-            const repo   = context.repo.repo;
-            const issue  = context.issue.number;
-            // build the comment body
-            const body = `#### HCP Terraform Plan Output
-            \`\`\`
-            Plan: ${steps.plan-output.outputs.add} to add, ${steps.plan-output.outputs.change} to change, ${steps.plan-output.outputs.destroy} to destroy.
-            \`\`\`
-            [View full run in Terraform Cloud](${steps.plan-run.outputs.run_link})`;
-
-            // look for an existing bot comment
-            const comments = await github.rest.issues.listComments({ owner, repo, issue_number: issue });
-            const existing = comments.data.find(c => c.user.type === 'Bot' && c.body.includes('HCP Terraform Plan Output'));
-
-            // common params for both update & create
-            const params = { owner, repo, body, issue_number: issue };
-            if (existing) {
-              await github.rest.issues.updateComment({ ...params, comment_id: existing.id });
-            } else {
-              await github.rest.issues.createComment(params);
-              }
           # script: |
-          #   // 1. Retrieve existing bot comments for the PR
-          #   const { data: comments } = await github.rest.issues.listComments({
-          #     owner: context.repo.owner,
-          #     repo: context.repo.repo,
-          #     issue_number: context.issue.number,
-          #   });
-          #   const botComment = comments.find(comment => {
-          #     return comment.user.type === 'Bot' && comment.body.includes('HCP Terraform Plan Output')
-          #   });
-          #   const output = `#### HCP Terraform Plan Output
-          #   Plan: ${{ steps.plan-output.outputs.add }} to add, ${{ steps.plan-output.outputs.change }} to change, ${{ steps.plan-output.outputs.destroy }} to destroy.
+          #   const owner  = context.repo.owner;
+          #   const repo   = context.repo.repo;
+          #   const issue  = context.issue.number;
+          #   // build the comment body
+          #   const body = `#### HCP Terraform Plan Output
+          #   \`\`\`
+          #   Plan: ${steps.plan-output.outputs.add} to add, ${steps.plan-output.outputs.change} to change, ${steps.plan-output.outputs.destroy} to destroy.
+          #   \`\`\`
+          #   [View full run in Terraform Cloud](${steps.plan-run.outputs.run_link})`;
+
+          #   // look for an existing bot comment
+          #   const comments = await github.rest.issues.listComments({ owner, repo, issue_number: issue });
+          #   const existing = comments.data.find(c => c.user.type === 'Bot' && c.body.includes('HCP Terraform Plan Output'));
+
+          #   // common params for both update & create
+          #   const params = { owner, repo, body, issue_number: issue };
+          #   if (existing) {
+          #     await github.rest.issues.updateComment({ ...params, comment_id: existing.id });
+          #   } else {
+          #     await github.rest.issues.createComment(params);
+              # }
+          script: |
+            // 1. Retrieve existing bot comments for the PR
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+            const botComment = comments.find(comment => {
+              return comment.user.type === 'Bot' && comment.body.includes('HCP Terraform Plan Output')
+            });
+            const output = `#### HCP Terraform Plan Output
+            Plan: ${{ steps.plan-output.outputs.add }} to add, ${{ steps.plan-output.outputs.change }} to change, ${{ steps.plan-output.outputs.destroy }} to destroy.
                 
-          #   [HCP Terraform Plan](${{ steps.plan-run.outputs.run_link }})
-          #       `;
+            [HCP Terraform Plan](${{ steps.plan-run.outputs.run_link }})
+                `;
             
-          #   // 3. Delete previous comment so PR timeline makes sense
-          #   if (botComment) {
-          #     github.rest.issues.deleteComment({
-          #       owner: context.repo.owner,
-          #       repo: context.repo.repo,
-          #       comment_id: botComment.id,
-          #     });
-          #   }
-          #   github.rest.issues.createComment({
-          #     issue_number: context.issue.number,
-          #     owner: context.repo.owner,
-          #     repo: context.repo.repo,
-          #     body: output
-          #   });
+            // 3. Delete previous comment so PR timeline makes sense
+            if (botComment) {
+              github.rest.issues.deleteComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+              });
+            }
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            });
