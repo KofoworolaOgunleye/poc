@@ -26,25 +26,34 @@ jobs:
         run: |
           echo "TF_VAR_tag_id=\"${{ github.ref_name }}\"" >> $GITHUB_ENV
           echo "Set TF_VAR_tag_id to ${{ github.ref_name }}"
-
-      - name: Upload Configuration
-        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-        id: apply-upload
+      
+      - name: Create Apply Run
+        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           directory: ${{ env.CONFIG_DIRECTORY }}
-
-      - name: Create Apply Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: apply-run
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
-
-      - name: Apply
-        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
-        id: apply
-        with:
-          run: ${{ steps.apply-run.outputs.run_id }}
           comment: " Staging Apply Run from GitHub Actions CI ${{ github.sha }}"
+          plan_only: true
+
+
+      # - name: Upload Configuration
+      #   uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+      #   id: apply-upload
+      #   with:
+      #     workspace: ${{ env.TF_WORKSPACE }}
+      #     directory: ${{ env.CONFIG_DIRECTORY }}
+
+      # - name: Create Apply Run
+      #   uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+      #   id: apply-run
+      #   with:
+      #     workspace: ${{ env.TF_WORKSPACE }}
+      #     configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+
+      # - name: Apply
+      #   uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
+      #   id: apply
+      #   with:
+      #     run: ${{ steps.apply-run.outputs.run_id }}
+      #     comment: " Staging Apply Run from GitHub Actions CI ${{ github.sha }}"
     
