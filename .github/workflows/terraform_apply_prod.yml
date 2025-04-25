@@ -7,11 +7,13 @@ on:
         description: 'Input the tag_id to deploy.'
         required: true
 
+
 env:
   TF_CLOUD_ORGANIZATION: "oak-national-academy"
   TF_WORKSPACE: "curr-kofo"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  CONFIG_DIRECTORY: "./"
+  CONFIG_DIRECTORY: "infra/api"
+  # TF_BASE_DIRECTORY: "infra"
 
 permissions:
   contents: read
@@ -41,7 +43,7 @@ jobs:
         id: apply-run
         with:
           workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ steps.upload.outputs.configuration_version_id }}
+          configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
 
       - name: Apply 
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0

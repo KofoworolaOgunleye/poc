@@ -5,12 +5,15 @@ on:
   push:
     tags:
       - 'v*'
+# on:
+#   pull_request:
 
 env:
-  TF_CLOUD_ORGANIZATION: "oak-national-academy"
+  # TF_CLOUD_ORGANIZATION: "oak-national-academy"
+  TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
   TF_WORKSPACE: "curr-kofo"
-  CONFIG_DIRECTORY: "./"
+  CONFIG_DIRECTORY: "infra/api"
 
 permissions:
   contents: read
@@ -33,7 +36,7 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           directory: ${{ env.CONFIG_DIRECTORY }}
-
+      
       - name: Create Apply Run
         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
         id: apply-run
