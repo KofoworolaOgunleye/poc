@@ -20,7 +20,7 @@ provider "google" {
 }
 
 resource "google_storage_bucket" "example" {
-  name     = "my-app-b"
+  name     = "mykkk5"
   location = "europe-west1"
   force_destroy = true
 
