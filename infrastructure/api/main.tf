@@ -20,7 +20,7 @@ provider "google" {
 }
 
 resource "google_storage_bucket" "example" {
-  name     = "myz"
+  name     = "kofo-test"
   location = "europe-west1"
   force_destroy = true
 
