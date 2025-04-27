@@ -16,15 +16,15 @@ jobs:
   detect-changes:
     runs-on: ubuntu-latest
     permissions:
-      contents: read
+      # contents: read
       pull-requests: read   # needed for paths-filter to see PR diffs
     outputs:
       api: ${{ steps.filter.outputs.api }}
       backend: ${{ steps.filter.outputs.backend }}
     steps:
-      - uses: actions/checkout@v3
-        with:
-          fetch-depth: 0      # ensure full history if you need merge-base diff 
+      # - uses: actions/checkout@v3
+      #   with:
+      #     fetch-depth: 0      # ensure full history if you need merge-base diff 
 
       - name: Detect changed paths
         id: filter
