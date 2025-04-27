@@ -1,140 +1,329 @@
 name: PR Checks
 description: "Runs terraform plan when code is pushed to branch/PR?"
 on:
-  pull_request:
+  pull_request
 
 # on:
-#   - pull_request:
-
-# env:
-#   TF_CLOUD_ORGANIZATION: "oak-national-academy"
-#   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-#   TF_WORKSPACE: "curr-kofo"
-#   CONFIG_DIRECTORY: "./"
-#   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }
+#   push:
+#     branches: 
+#       - feat/ENG-1178-automated-tag-based-deployment
 
 permissions:
   contents: read
   pull-requests: write
 
 jobs:
-  trigger_tfc_plan:
+  detect-changes:
     runs-on: ubuntu-latest
-    env:
-      # TF_CLOUD_ORGANIZATION: "oak-national-academy"
-      # TF_BASE_DIRECTORY: "infra"
-      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
-      TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-      TF_WORKSPACE: "curr-kofo"
-      CONFIG_DIRECTORY: "infra/api"
-      # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      pull-requests: read   # needed for paths-filter to see PR diffs
+    outputs:
+      api: ${{ steps.filter.outputs.api }}
+      backend: ${{ steps.filter.outputs.backend }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Set tag_id for PRs
-        run: |
-          echo "TF_VAR_tag_id=\"pr-preview\"" >> $GITHUB_ENV
-          echo "Set TF_VAR_tag_id to pr-preview for PR run"
-
-      # - name: Find
-      #   id: find
-      #   run: |
-      #     cd ${{ env.TF_BASE_DIRECTORY }}
-      #     for d in $(find . -type d -mindepth 1 -maxdepth 1); do
-      #       echo "Found directory: $d"
-      #     done
-
-      # - name: Find Terraform Configuration Directory
-      #   id: find_tf
-      #   run: |
-      #     cd ${{ env.TF_BASE_DIRECTORY }}
-      #     for d in $(find . -type d -mindepth 1 -maxdepth 1 | sed 's|^\./||'); do
-      #       echo $d
-      #       echo "dir=${{ env.TF_BASE_DIRECTORY }}/$d" >> $GITHUB_ENV
-      #     done
-
-      # - name: Find T
-      #   run: echo "dir is ${{ env.dir }}"
-
-      - name: Upload Configuration
-        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-        id: plan-upload
+      - uses: actions/checkout@v3
         with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          directory: ${{ env.CONFIG_DIRECTORY }}
-          # directory: ${{ env.dir }}
-          speculative: true
+          fetch-depth: 0      # ensure full history if you need merge-base diff 
 
-      - name: Create Plan Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: plan-run
+      - name: Detect changed paths
+        id: filter
+        uses: dorny/paths-filter@v3   # Conditionally detect changes per-folder
         with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
-          plan_only: true
+          filters: |
+            api:
+              - 'infrastructure/api/**'
+            backend:
+              - 'infrastructure/backend/**'
+  # ‘filter.outputs.api’/‘.backend’ will be 'true' or 'false' 
 
-      # - name: Upload Configuration
-      #   uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-      #   id: plan-upload
-      #   with:
-      #     workspace: ${{ env.TF_WORKSPACE }}
-      #     directory: ${{ env.CONFIG_DIRECTORY }}
-      #     speculative: true
+  api-plan:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.api == 'true'   # only run if API files changed 
+    uses: oaknational/oak-release-actions/.github/workflows/pr_plan.yml@feat/ENG-1196-add-reusable-workflows
+    with:
+      TF_BASE_SUBDIRECTORY: "api"
+      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      TF_WORKSPACE: curr-kofo
+    secrets:
+      TF_API_TOKEN:   ${{ secrets.TF_API_TOKEN }}
+      PR_COMMENT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # - name: Create Plan Run
-      #   uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-      #   id: plan-run
-      #   with:
-      #     workspace: ${{ env.TF_WORKSPACE }}
-      #     configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
-      #     plan_only: true
+  backend-plan:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.backend == 'true'  # only run if Backend files changed 
+    uses: oaknational/oak-release-actions/.github/workflows/pr_plan.yml@feat/ENG-1196-add-reusable-workflows
+    with:
+      TF_BASE_SUBDIRECTORY: "backend"
+      TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+      TF_WORKSPACE: curr-kofo
+    secrets:
+      TF_API_TOKEN:     ${{ secrets.TF_API_TOKEN }}
+      PR_COMMENT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get Plan Output
-        uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
-        id: plan-output
-        with:
-          plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
+  # detect-changes:
+  #   runs-on: ubuntu-latest
+  #   outputs:
+  #     api_changed: ${{ steps.filter.outputs.api }}
+  #     backend_changed: ${{ steps.filter.outputs.backend }}
+  #   steps:
+  #     - uses: actions/checkout@v3
+  #       with: 
+  #         fetch-depth: 0
+  #         fetch-tags: true
+  #     - name: Filter for dirs
+  #       id: filter
+  #       uses: dorny/paths-filter@v3
+  #       with:
+  #         filters: |
+  #           api:
+  #             - 'api/**'
+  #           backend:
+  #             - 'backend/**'
+
+  # beta-deploy:
+  #   needs: detect-changes
+  #   strategy:
+  #     matrix:
+  #       component:
+  #         - name: api
+  #           dir: 'api'
+  #           workspace: 'curr-kofo'
+  #           changed: ${{ needs.detect-changes.outputs.api_changed }}
+  #         - name: backend
+  #           dir: 'backend'
+  #           workspace: 'curr-kofo'
+  #           changed: ${{ needs.detect-changes.outputs.backend_changed }}
+  #   concurrency:
+  #     group: '${{ github.ref_name }}-${{ matrix.component.name }}'
+  #     cancel-in-progress: true
+  #   uses: oaknational/oak-release-actions/.github/workflows/pr_plan.yml@feat/ENG-1196-add-reusable-workflows
+  #   with:
+  #     TF_BASE_SUBDIRECTORY: ${{ matrix.component.dir }}
+  #     TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+  #     TF_WORKSPACE: ${{ matrix.component.workspace }}
+  #   secrets:
+  #     TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+  #     PR_COMMENT_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+# jobs:
+#   trigger_tfc_plan:
+#     runs-on: ubuntu-latest
+#     env:
+#       # TF_CLOUD_ORGANIZATION: "oak-national-academy"
+#       # TF_BASE_DIRECTORY: "infra"
+#   beta-deploy:
+#     strategy:
+#       matrix:
+#         component:
+#           - name: api
+#             dir: 'api'
+#             workspace: 'curr-kofo'
+#           - name: backend
+#             dir: 'backend'
+#             workspace: 'curr-kofo'
+#     concurrency:              # one run per tag+component
+#       group: '${{ github.ref_name }}-${{ matrix.component.name }}'
+#       cancel-in-progress: true
+#     uses: oaknational/oak-release-actions/.github/workflows/pr_plan.yml@feat/ENG-1196-add-reusable-workflows
+#     with:
+#       TF_BASE_SUBDIRECTORY: ${{ matrix.component.dir }}
+#       TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+#       TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
+#       TF_WORKSPACE: "curr-kofo"
+#       CONFIG_DIRECTORY: "infra/api"
+#       # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Set tag_id for PRs
+#         run: |
+#           echo "TF_VAR_tag_id=\"pr-preview\"" >> $GITHUB_ENV
+#           echo "Set TF_VAR_tag_id to pr-preview for PR run"
+
+  # trigger_tfc_plan_api:
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     # TF_CLOUD_ORGANIZATION: "oak-national-academy"
+  #     # TF_BASE_DIRECTORY: "infra"
+  #     TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+  #     TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
+  #     TF_WORKSPACE: "curr-kofo"
+  #     CONFIG_DIRECTORY: "infra/api"
+  #     # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+  #     - name: Set tag_id for PRs
+  #       run: |
+  #         echo "TF_VAR_tag_id=\"pr-preview\"" >> $GITHUB_ENV
+  #         echo "Set TF_VAR_tag_id to pr-preview for PR run"
+
+  #     - name: Upload Configuration
+  #       uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+  #       id: plan-upload
+  #       with:
+  #         workspace: ${{ env.TF_WORKSPACE }}
+  #         directory: ${{ env.CONFIG_DIRECTORY }}
+  #         # directory: ${{ env.dir }}
+  #         speculative: true
+
+  #     - name: Create Plan Run
+  #       uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+  #       id: plan-run
+  #       with:
+  #         workspace: ${{ env.TF_WORKSPACE }}
+  #         configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
+  #         plan_only: true
+
+  #     - name: Get Plan Output
+  #       uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
+  #       id: plan-output
+  #       with:
+  #         plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
     
-      - name: Update PR
-        uses: actions/github-script@v6
-        id: plan-comment
-        with:
-          # github-token: ${{ env.GITHUB_TOKEN }}
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            // Define reusable parameters
-            const prParams = {
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              issue_number: context.issue.number,
-            };
+  #     - name: Update PR
+  #       uses: actions/github-script@v6
+  #       id: plan-comment
+  #       with:
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         script: |
+  #           // Define reusable parameters
+  #           const prParams = {
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             issue_number: context.issue.number,
+  #           };
 
-            // 1. Retrieve existing bot comments
-            const { data: comments } = await github.rest.issues.listComments(prParams);
-            const botComment = comments.find(comment =>
-              comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Output')
-            );
+  #           // 1. Retrieve existing bot comments
+  #           const { data: comments } = await github.rest.issues.listComments(prParams);
+  #           const botComment = comments.find(comment =>
+  #             comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Output')
+  #           );
 
-            // 2. Build comment body
-            const output = `#### Terraform Plan Output
-              \`\`\`
-              Plan: ${{ steps.plan-output.outputs.add }} to add, ${{ steps.plan-output.outputs.change }} to change, ${{ steps.plan-output.outputs.destroy }} to destroy.
-              \`\`\`
-              [Terraform Plan](${{ steps.plan-run.outputs.run_link }})`;
+  #           // 2. Build comment body
+  #           const output = `#### Terraform Plan Output
+  #             \`\`\`
+  #             Plan: ${{ steps.plan-output.outputs.add }} to add, ${{ steps.plan-output.outputs.change }} to change, ${{ steps.plan-output.outputs.destroy }} to destroy.
+  #             \`\`\`
+  #             [Terraform Plan](${{ steps.plan-run.outputs.run_link }})`;
 
-            // 3. Delete previous comment and post new one
-            if (botComment) {
-               github.rest.issues.deleteComment({
-                ...prParams,
-                comment_id: botComment.id,
-              });
-            }
+  #           // 3. Delete previous comment and post new one
+  #           if (botComment) {
+  #              github.rest.issues.deleteComment({
+  #               ...prParams,
+  #               comment_id: botComment.id,
+  #             });
+  #           }
 
-            github.rest.issues.createComment({
-              ...prParams,
-              body: output
-            });
+  #           github.rest.issues.createComment({
+  #             ...prParams,
+  #             body: output
+  #           });
+
+  # trigger_tfc_plan_backend:
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     # TF_CLOUD_ORGANIZATION: "oak-national-academy"
+  #     # TF_BASE_DIRECTORY: "infra"
+  #     TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+  #     TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
+  #     TF_WORKSPACE: "curr-kofo"
+  #     CONFIG_DIRECTORY: "infra/backend"
+  #     # GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #   steps:
+  #     - name: Checkout code
+  #       uses: actions/checkout@v3
+
+  #     - name: Set tag_id for PRs
+  #       run: |
+  #         echo "TF_VAR_tag_id=\"pr-preview\"" >> $GITHUB_ENV
+  #         echo "Set TF_VAR_tag_id to pr-preview for PR run"
+
+  #     # - name: Find
+  #     #   id: find
+  #     #   run: |
+  #     #     cd ${{ env.TF_BASE_DIRECTORY }}
+  #     #     for d in $(find . -type d -mindepth 1 -maxdepth 1); do
+  #     #       echo "Found directory: $d"
+  #     #     done
+
+  #     # - name: Find Terraform Configuration Directory
+  #     #   id: find_tf
+  #     #   run: |
+  #     #     cd ${{ env.TF_BASE_DIRECTORY }}
+  #     #     for d in $(find . -type d -mindepth 1 -maxdepth 1 | sed 's|^\./||'); do
+  #     #       echo $d
+  #     #       echo "dir=${{ env.TF_BASE_DIRECTORY }}/$d" >> $GITHUB_ENV
+  #     #     done
+
+  #     # - name: Find T
+  #     #   run: echo "dir is ${{ env.dir }}"
+
+  #     - name: Upload Configuration
+  #       uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+  #       id: plan-upload
+  #       with:
+  #         workspace: ${{ env.TF_WORKSPACE }}
+  #         directory: ${{ env.CONFIG_DIRECTORY }}
+  #         # directory: ${{ env.dir }}
+  #         speculative: true
+
+  #     - name: Create Plan Run
+  #       uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+  #       id: plan-run
+  #       with:
+  #         workspace: ${{ env.TF_WORKSPACE }}
+  #         configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
+  #         plan_only: true
+
+  #     - name: Get Plan Output
+  #       uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
+  #       id: plan-output
+  #       with:
+  #         plan: ${{ fromJSON(steps.plan-run.outputs.payload).data.relationships.plan.data.id }}
+    
+  #     - name: Update PR
+  #       uses: actions/github-script@v6
+  #       id: plan-comment
+  #       with:
+  #         # github-token: ${{ env.GITHUB_TOKEN }}
+  #         github-token: ${{ secrets.GITHUB_TOKEN }}
+  #         script: |
+  #           // Define reusable parameters
+  #           const prParams = {
+  #             owner: context.repo.owner,
+  #             repo: context.repo.repo,
+  #             issue_number: context.issue.number,
+  #           };
+
+  #           // 1. Retrieve existing bot comments
+  #           const { data: comments } = await github.rest.issues.listComments(prParams);
+  #           const botComment = comments.find(comment =>
+  #             comment.user.type === 'Bot' && comment.body.includes('Terraform Plan Output')
+  #           );
+
+  #           // 2. Build comment body
+  #           const output = `#### Terraform Plan Output
+  #             \`\`\`
+  #             Plan: ${{ steps.plan-output.outputs.add }} to add, ${{ steps.plan-output.outputs.change }} to change, ${{ steps.plan-output.outputs.destroy }} to destroy.
+  #             \`\`\`
+  #             [Terraform Plan](${{ steps.plan-run.outputs.run_link }})`;
+
+  #           // 3. Delete previous comment and post new one
+  #           if (botComment) {
+  #              github.rest.issues.deleteComment({
+  #               ...prParams,
+  #               comment_id: botComment.id,
+  #             });
+  #           }
+
+  #           github.rest.issues.createComment({
+  #             ...prParams,
+  #             body: output
+  #           });
           # script: |
           #   // 1. Retrieve existing bot comments for the PR
           #   const { data: comments } = await github.rest.issues.listComments({
