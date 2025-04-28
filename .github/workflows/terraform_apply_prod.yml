@@ -1,57 +1,93 @@
-name: Deploy to Production
-
+name: prod
+description: "Runs terraform plan when code is pushed to branch/PR?"
 on:
-  workflow_dispatch: 
+  workflow_dispatch:
     inputs:
       tag_id:
-        description: 'Input the tag_id to deploy.'
+        description: 'Git tag to apply to production'
         required: true
-
-
-env:
-  TF_CLOUD_ORGANIZATION: "oak-national-academy"
-  TF_WORKSPACE: "curr-kofo"
-  TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  CONFIG_DIRECTORY: "infrastructure/api"
-  # TF_BASE_DIRECTORY: "infra"
+        type: string
 
 permissions:
   contents: read
+  pull-requests: write
+
 
 jobs:
-  deploy:
+  prod:
     runs-on: ubuntu-latest
+    
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
           fetch-tags: true
           ref: ${{ github.event.inputs.tag_id }}
 
-      - name: Set tag_id for production
-        id: set_tag_id
-        run: |
-            echo "Using manually provided tag_id: ${{ github.event.inputs.tag_id }}"
-            echo "TF_VAR_tag_id=\"${{ github.event.inputs.tag_id }}\"" >> $GITHUB_ENV
-
-      - name: Upload Configuration
-        uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
-        id: apply-upload
+      - name: Run Terraform Deploy from oak-release-actions
+        uses: oaknational/oak-release-actions/actions/terraform_deploy@feat/ENG-1196-add-reusable-workflows
         with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          directory: ${{ env.CONFIG_DIRECTORY }}
+          TF_BASE_SUBDIRECTORY: "api"
+          TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+          TF_WORKSPACE: curr-kofo
+          TF_API_TOKEN: ${{ secrets.TF_API_TOKEN }}
+          TAG_ID: ${{ inputs.tag_id }}
 
-      - name: Create Apply Run
-        uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
-        id: apply-run
-        with:
-          workspace: ${{ env.TF_WORKSPACE }}
-          configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+# name: Deploy to Production
 
-      - name: Apply 
-        uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
-        id: apply
-        with:
-          run: ${{ steps.apply-run.outputs.run_id }}
-          comment: "Production Apply Run triggered by GitHub Actions CI (commit ${{ github.sha }})"
+# on:
+#   workflow_dispatch: 
+#     inputs:
+#       tag_id:
+#         description: 'Input the tag_id to deploy.'
+#         required: true
+
+
+# env:
+#   TF_CLOUD_ORGANIZATION: "oak-national-academy"
+#   TF_WORKSPACE: "curr-kofo"
+#   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
+#   CONFIG_DIRECTORY: "infrastructure/api"
+#   # TF_BASE_DIRECTORY: "infra"
+
+# permissions:
+#   contents: read
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+#         with:
+#           fetch-depth: 0
+#           fetch-tags: true
+#           ref: ${{ github.event.inputs.tag_id }}
+
+#       - name: Set tag_id for production
+#         id: set_tag_id
+#         run: |
+#             echo "Using manually provided tag_id: ${{ github.event.inputs.tag_id }}"
+#             echo "TF_VAR_tag_id=\"${{ github.event.inputs.tag_id }}\"" >> $GITHUB_ENV
+
+#       - name: Upload Configuration
+#         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
+#         id: apply-upload
+#         with:
+#           workspace: ${{ env.TF_WORKSPACE }}
+#           directory: ${{ env.CONFIG_DIRECTORY }}
+
+#       - name: Create Apply Run
+#         uses: hashicorp/tfc-workflows-github/actions/create-run@v1.0.0
+#         id: apply-run
+#         with:
+#           workspace: ${{ env.TF_WORKSPACE }}
+#           configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+
+#       - name: Apply 
+#         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
+#         id: apply
+#         with:
+#           run: ${{ steps.apply-run.outputs.run_id }}
+#           comment: "Production Apply Run triggered by GitHub Actions CI (commit ${{ github.sha }})"

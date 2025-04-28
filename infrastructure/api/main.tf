@@ -1,12 +1,12 @@
-data "terraform_remote_state" "google_project" {
-  backend = "remote"
-  config = {
-    organization = "oak-national-academy"
-    workspaces = {
-      name = "curr-kofo"
-    }
-  }
-}
+# data "terraform_remote_state" "google_project" {
+#   backend = "remote"
+#   config = {
+#     organization = "oak-national-academy"
+#     workspaces = {
+#       name = "curr-kofo"
+#     }
+#   }
+# }
 
 variable "tag_id" {
   description = "Git tag used as a version identifier"
@@ -20,7 +20,7 @@ provider "google" {
 }
 
 resource "google_storage_bucket" "example" {
-  name     = "kofo-testz"
+  name     = "kofo-testy"
   location = "europe-west1"
   force_destroy = true
 
