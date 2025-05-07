@@ -1,12 +1,12 @@
-data "terraform_remote_state" "google_project" {
-  backend = "remote"
-  config = {
-    organization = "oak-national-academy"
-    workspaces = {
-      name = "curr-kofo"
-    }
-  }
-}
+# data "terraform_remote_state" "google_project" {
+#   backend = "remote"
+#   config = {
+#     organization = "oak-national-academy"
+#     workspaces = {
+#       name = "curr-kofo2"
+#     }
+#   }
+# }
 
 variable "tag_id" {
   description = "Git tag used as a version identifier"
