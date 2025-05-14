@@ -45,7 +45,7 @@ jobs:
           ref: ${{ github.event.release.tag_name }}
 
       - name: Run Terraform Apply
-        uses: oaknational/oak-release-actions/actions/terraform_pr_plan@feat/multi-comment-for-multi-subdir
+        uses: oaknational/oak-release-actions/actions/terraform_deploy@feat/multi-comment-for-multi-subdir
         with:
           TAG_ID:               ${{ github.event.release.tag_name }}
           TF_API_TOKEN:         ${{ secrets.TF_API_TOKEN }}
