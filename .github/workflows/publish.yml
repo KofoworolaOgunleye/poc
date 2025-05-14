@@ -35,7 +35,7 @@ jobs:
   beta_deploy:
     name: Deploy to Beta
     needs: deploy
-    if: needs.deploy.conclusion == 'success' && github.event_name == 'release' && github.event.action == 'released'
+    if: needs.deploy.result == 'success' && github.event_name == 'release'
     runs-on: ubuntu-latest
 
     steps:
