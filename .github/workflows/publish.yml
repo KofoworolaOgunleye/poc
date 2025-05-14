@@ -1,0 +1,54 @@
+name: Publish
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+  release:
+    types: [released]
+
+jobs:
+  deploy:
+
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+
+    runs-on: ubuntu-latest
+    steps:
+      - name: 'Checkout'
+        uses: 'actions/checkout@v3'
+
+      - name: Set release version from tag id
+        if: ${{ startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          RELEASE_TAG=${{ github.event.release.tag_name }}
+          [ -z "$RELEASE_TAG" ] && echo "Release tag not set, exiting..." && exit 1;
+          echo "RELEASE_TAG=$RELEASE_TAG" >> "$GITHUB_ENV"
+
+      - name: Set release version from date time
+        if: ${{ ! startsWith(github.ref, 'refs/tags/') }}
+        run: |
+          echo "RELEASE_TAG=$(date +%y-%m-%d.%H-%M)" >> "$GITHUB_ENV"
+      - name: 'Release Tag'
+        run: echo ${RELEASE_TAG}
+
+  beta_deploy:
+    name: Deploy to Beta
+    needs: deploy
+    if: needs.deploy.conclusion == 'success' && github.event_name == 'release' && github.event.action == 'released'
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code at tag
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Run Terraform Apply
+        uses: oaknational/oak-release-actions/actions/terraform_pr_plan@feat/multi-comment-for-multi-subdir
+        with:
+          TAG_ID:               ${{ github.event.release.tag_name }}
+          TF_API_TOKEN:         ${{ secrets.TF_API_TOKEN }}
+          TF_BASE_SUBDIRECTORY: "api"
+          TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+          TF_WORKSPACE:         "curr-kofo"
