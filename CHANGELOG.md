@@ -1,10 +1,4 @@
-# [1.0.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.1.0...v1.0.0) (2025-05-17)
-
-
-### Features
-
-* wip ([e6d9128](https://github.com/KofoworolaOgunleye/poc/commit/e6d9128d232cab926d56806bfe42370576470244))
-* wip ([f5b590b](https://github.com/KofoworolaOgunleye/poc/commit/f5b590b86775d5aaec400607fd506ae3061384e4))
+## [Unreleased]
 
 
 
@@ -58,4 +52,13 @@
 * change bucket name ([23da2a6](https://github.com/KofoworolaOgunleye/poc/commit/23da2a63a7d694ec4c21729cb3a7d0e118adc789))
 
 
+
+# [1.0.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.1.0...v1.0.0) (2025-05-17)
+
+
+### Features
+
+* wip ([49b7005](https://github.com/KofoworolaOgunleye/poc/commit/49b70050af167211a39692fb046e2cb8d4c90b3b))
+* wip ([e6d9128](https://github.com/KofoworolaOgunleye/poc/commit/e6d9128d232cab926d56806bfe42370576470244))
+* wip ([f5b590b](https://github.com/KofoworolaOgunleye/poc/commit/f5b590b86775d5aaec400607fd506ae3061384e4))
 
