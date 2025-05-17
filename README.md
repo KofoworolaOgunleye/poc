@@ -49,3 +49,4 @@ To make sure it's executable run , `chmod +x scripts/release.sh`
 - Open a PR against main, get it reviewed and merged.
 - Run Release Script; `./scripts/release.sh X.Y.Z`
 - After the script completes, manually run `git push origin main vX.Y.Z` and create the GitHub Release at: https://github.com/oaknational/oak-terraform-modules/releases/. This gives us an opportunity to review before pushing
+- At release time, you have to change "Unreleased" to the version number and add a new "Unreleased" header at the top.
