@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "commitlint-last": "echo \"$(git log -1 --pretty=format:'%s')\" | commitlint --verbose",
     "test": "echo \"Error: no test specified\" && exit 1",
     "release": "semantic-release",
@@ -26,6 +27,7 @@
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/github": "^11.0.1",
     "@semantic-release/release-notes-generator": "^14.0.3",
+    "conventional-changelog-cli": "^5.0.0",
     "husky": "^9.1.7",
     "semantic-release": "^24.2.3"
   }
