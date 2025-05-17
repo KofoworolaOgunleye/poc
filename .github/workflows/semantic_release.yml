@@ -1,58 +1,58 @@
-# Create a semantic release, including
-# - an updated change log file
-# - a Github release, which may trigger deployments.
-name: Create Github Release
+# # Create a semantic release, including
+# # - an updated change log file
+# # - a Github release, which may trigger deployments.
+# name: Create Github Release
 
-# All changes to `main` have gone through
-# automated checks and should have gone
-# through code review and manual checks
-# where appropriate.
-on:
-  push:
-    branches:
-      - main
-    # paths-ignore:
-    #   - "CHANGE_LOG.md"
+# # All changes to `main` have gone through
+# # automated checks and should have gone
+# # through code review and manual checks
+# # where appropriate.
+# on:
+#   push:
+#     branches:
+#       - main
+#     # paths-ignore:
+#     #   - "CHANGE_LOG.md"
 
-permissions:
-  contents: write
-  issues: write
-  pull-requests: write
+# permissions:
+#   contents: write
+#   issues: write
+#   pull-requests: write
   
-jobs:
-  semantic_release:
-    name: semantic release
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          token: ${{ secrets.GH_TOKEN }}
+# jobs:
+#   semantic_release:
+#     name: semantic release
+#     runs-on: ubuntu-latest
+#     steps:
+#       - uses: actions/checkout@v3
+#         with:
+#           token: ${{ secrets.GH_TOKEN }}
 
-      - name: Use Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: 20.x
-          cache: "npm"
+#       - name: Use Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: 20.x
+#           cache: "npm"
 
-      # Install.
-      - run: npm ci
+#       # Install.
+#       - run: npm ci
 
-      # Create Github release using semantic-release package.
-      # See config here release.config.js
-      # Note, this runs on `main` and creates the release tag.
-      # and updates the changelog file.
-      - name: do release
-        id: semantic_release
-        run: npx semantic-release
-        env:
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+#       # Create Github release using semantic-release package.
+#       # See config here release.config.js
+#       # Note, this runs on `main` and creates the release tag.
+#       # and updates the changelog file.
+#       - name: do release
+#         id: semantic_release
+#         run: npx semantic-release
+#         env:
+#           GH_TOKEN: ${{ secrets.GH_TOKEN }}
 
-      # - name: Leak secret via ROT13
-      #   env:
-      #     SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
-      #     TOKEN_2: ${{ secrets.TF_API_TOKEN }}
-      #     TOKEN_3: ${{ secrets.TEST_SECRET }}
-      #   run: |
-      #     echo "$SECRET_TOKEN" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
-      #     echo "$TOKEN_2" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
-      #     echo "$TOKEN_3" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
+#       # - name: Leak secret via ROT13
+#       #   env:
+#       #     SECRET_TOKEN: ${{ secrets.GH_TOKEN }}
+#       #     TOKEN_2: ${{ secrets.TF_API_TOKEN }}
+#       #     TOKEN_3: ${{ secrets.TEST_SECRET }}
+#       #   run: |
+#       #     echo "$SECRET_TOKEN" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
+#       #     echo "$TOKEN_2" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
+#       #     echo "$TOKEN_3" | tr 'A-MN-Za-mn-z' 'N-ZA-Mn-za-m'
