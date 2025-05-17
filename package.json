@@ -4,9 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "commitlint-last": "echo \"$(git log -1 --pretty=format:'%s')\" | commitlint --verbose",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "release": "semantic-release"
-
+    "release": "semantic-release",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -19,10 +20,13 @@
   },
   "homepage": "https://github.com/KofoworolaOgunleye/poc#readme",
   "devDependencies": {
+    "@commitlint/cli": "^19.8.1",
+    "@commitlint/config-conventional": "^19.8.1",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.1",
     "@semantic-release/github": "^11.0.1",
     "@semantic-release/release-notes-generator": "^14.0.3",
+    "husky": "^9.1.7",
     "semantic-release": "^24.2.3"
   }
 }
