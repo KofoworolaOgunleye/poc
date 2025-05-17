@@ -70,18 +70,21 @@ if [ "$CURRENT_BRANCH" != "main" ]; then
 fi
 ok "On main branch"
 
+log "Pulling latest changes from origin/main"
+run_or_dry "git pull origin main" || error "Failed to pull latest changes. Fix any conflicts before proceeding."
+ok "Repo is up to date with origin/main"
+
 if ! git diff-index --quiet HEAD --; then
     error "You have uncommitted changes. Please commit or stash them first"
 fi
 ok "Working directory clean, No uncommitted changes"
 
-if git rev-parse "$TAG" >/dev/null 2>&1; then
-    error "Tag '$TAG' already exists"
-  fi
-  ok "Tag is available: $TAG"
+if git rev-parse "$TAG" >/dev/null 2>&1 || git ls-remote --tags origin "$TAG" | grep -q "$TAG"; then 
+  error "Tag '$TAG' already exists locally or on remote"
+fi
+ok "Tag is available: $TAG"
 
-
-echo -e "${BLUE}Step 2: Checking release type${NC}"
+echo -e "${BLUE}Step 2: Updating changelog and version${NC}"
 
 log "Auto-generating changelog with conventional-changelog"
 run_or_dry "npx conventional-changelog -p angular -i $CHANGELOG -s -r 0"
@@ -115,132 +118,15 @@ Next:
 
 EOF
 
+# if ! command -v gh >/dev/null 2>&1; then
+#   echo " GitHub CLI not found, please install manually. For mac, use: brew install gh. For others visit https://github.com/cli/cli#installation"
+# else
+#   echo "gh is installed."
+# fi
 
-
-
-
-# Determine the type of version change
-LAST_VERSION=$(git describe --tags --abbrev=0 2>/dev/null || echo "0.0.0")
-if [ "$LAST_VERSION" == "0.0.0" ]; then
-  RELEASE_TYPE="Initial release"
-else
-  LAST_VERSION_CLEAN=${LAST_VERSION#v}
-  LAST_MAJOR=$(echo $LAST_VERSION_CLEAN | cut -d. -f1)
-  LAST_MINOR=$(echo $LAST_VERSION_CLEAN | cut -d. -f2)
-  LAST_PATCH=$(echo $LAST_VERSION_CLEAN | cut -d. -f3 | cut -d- -f1)
-
-  CURRENT_MAJOR=$(echo $VERSION | cut -d. -f1)
-  CURRENT_MINOR=$(echo $VERSION | cut -d. -f2)
-  CURRENT_PATCH=$(echo $VERSION | cut -d. -f3 | cut -d- -f1)
-
-  if [ "$CURRENT_MAJOR" -gt "$LAST_MAJOR" ]; then
-    RELEASE_TYPE="Major version upgrade"
-  elif [ "$CURRENT_MINOR" -gt "$LAST_MINOR" ]; then
-    RELEASE_TYPE="Minor version upgrade"
-  else
-    RELEASE_TYPE="Patch release"
-  fi
-
-  if [[ $VERSION == *"-"* ]]; then
-    RELEASE_TYPE="$RELEASE_TYPE (Pre-release)"
-  fi
-fi
-
-echo -e "${GREEN}Release type: $RELEASE_TYPE${NC}"
-echo -e "Upgrading from $LAST_VERSION to $TAG"
-
-echo -e "${BLUE}Step 3: Updating CHANGELOG.md${NC}"
-
-# Check if CHANGELOG.md exists
-if [ ! -f "CHANGELOG.md" ]; then
-  echo -e "${RED}:x: Error: CHANGELOG.md not found${NC}"
-  exit 1
-fi
-
-# Check if the Unreleased section exists
-if ! grep -q "\[Unreleased\]" CHANGELOG.md; then
-  echo -e "${RED}:x: Error: [Unreleased] section not found in CHANGELOG.md${NC}"
-  exit 1
-fi
-
-# Check if there are actually changes in the Unreleased section
-UNRELEASED_CONTENT=$(sed -n '/## \[Unreleased\]/,/## \[[0-9]\+\.[0-9]\+\.[0-9]\+/p' CHANGELOG.md | grep -v "## \[")
-if [ -z "$(echo "$UNRELEASED_CONTENT" | grep -v '^)" ]; then
-  echo -e "${YELLOW}:warning:  Warning: No changes found in [Unreleased] section${NC}"
-  read -p "Continue anyway? (y/n) " -n 1 -r
-  echo
-  if [[ ! $REPLY =~ ^[Yy]$ ]]; then
-    echo "Please add your changes to the CHANGELOG.md under the [Unreleased] section before creating a release"
-    exit 1
-  fi
-fi
-
-# Update CHANGELOG.md - convert Unreleased to version
-today=$(date +%Y-%m-%d)
-sed -i "s/## \[Unreleased\]/## \[Unreleased\]\n\n## \[$VERSION\] - $today/g" CHANGELOG.md
-echo -e "${GREEN}:white_check_mark: Added version [$VERSION] dated $today to CHANGELOG.md${NC}"
-
-# Update link reference at bottom of CHANGELOG.md
-if [ -n "$LAST_VERSION" ] && [ "$LAST_VERSION" != "0.0.0" ]; then
-  # Update previous version comparison link
-  sed -i "s|\[Unreleased\]:.*|[Unreleased]: https://github.com/your-org/oak-terraform-modules/compare/$TAG...HEAD|g" CHANGELOG.md
-  # Add new version comparison link
-  if ! grep -q "\[$VERSION\]:" CHANGELOG.md; then
-    sed -i "/\[Unreleased\]:/a [${VERSION}]: https://github.com/your-org/oak-terraform-modules/compare/${LAST_VERSION}...${TAG}" CHANGELOG.md
-  fi
-else
-  # This is the first release
-  sed -i "s|\[Unreleased\]:.*|[Unreleased]: https://github.com/your-org/oak-terraform-modules/compare/$TAG...HEAD|g" CHANGELOG.md
-  if ! grep -q "\[$VERSION\]:" CHANGELOG.md; then
-    sed -i "/\[Unreleased\]:/a [${VERSION}]: https://github.com/your-org/oak-terraform-modules/releases/tag/${TAG}" CHANGELOG.md
-  fi
-fi
-echo -e "${GREEN}:white_check_mark: Updated version links in CHANGELOG.md${NC}"
-
-# Open changelog for editing to finalize release notes
-echo -e "${BLUE}Step 4: Opening CHANGELOG.md for final review${NC}"
-echo -e "${YELLOW}Please review and save the file when done.${NC}"
-${EDITOR:-vim} CHANGELOG.md
-
-echo -e "${BLUE}Step 5: Creating release commit and tag${NC}"
-
-# Commit changes
-git add CHANGELOG.md
-git commit -m "Prepare release $TAG"
-echo -e "${GREEN}:white_check_mark: Committed CHANGELOG.md changes${NC}"
-
-# Create signed tag
-echo -e "Creating signed tag $TAG..."
-git tag -s "$TAG" -m "Release $TAG"
-echo -e "${GREEN}:white_check_mark: Created signed tag $TAG${NC}"
-
-# Generate release notes for GitHub Release
-echo -e "${BLUE}Step 6: Generating GitHub release notes${NC}"
-RELEASE_NOTES=$(sed -n "/## \[$VERSION\]/,/## \[/p" CHANGELOG.md | grep -v "## \[" | sed '/^$/N;/^\n$/D')
-
-# Create release notes file for GitHub Release
-echo "$RELEASE_NOTES" > release_notes.txt
-echo -e "${GREEN}:white_check_mark: Generated release notes in release_notes.txt${NC}"
-
-echo -e "${BLUE}Release preparation completed${NC}"
-echo -e "${GREEN}:white_check_mark: CHANGELOG.md updated${NC}"
-echo -e "${GREEN}:white_check_mark: Changes committed${NC}"
-echo -e "${GREEN}:white_check_mark: Tag $TAG created${NC}"
-
-echo -e "${YELLOW}Next steps:${NC}"
-echo -e "1. Push changes and tag with: ${GREEN}git push origin main $TAG${NC}"
-echo -e "2. Create a GitHub Release at:"
-echo -e "   ${GREEN}https://github.com/your-org/oak-terraform-modules/releases/new?tag=$TAG${NC}"
-echo -e "3. Upload the generated release_notes.txt or copy its contents"
-
-echo -e "\n${BLUE}Would you like to push changes now? (y/n)${NC} "
-read -n 1 -r
-echo
-if [[ $REPLY =~ ^[Yy]$ ]]; then
-  echo "Pushing to origin..."
-  git push origin main "$TAG"
-  echo -e "${GREEN}:white_check_mark: Changes pushed!${NC}"
-
-  echo -e "\n${YELLOW}Remember to create the GitHub Release manually:${NC}"
-  echo -e "https://github.com/your-org/oak-terraform-modules/releases/new?tag=$TAG"
-fi
+# log "Pushing to GitHub and creating release"
+# run_or_dry "git push origin main $TAG"
+# run_or_dry "gh release create $TAG \
+#   --notes-file CHANGELOG.md \
+#   --title \"Release $VERSION\""
+# ok "GitHub Release $TAG published"
