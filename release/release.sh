@@ -102,8 +102,8 @@ run_or_dry "git add $CHANGELOG $VERSION_FILE"
 run_or_dry "git commit -m \"chore(release): $VERSION\""
 ok "Committed release changes"
 
-log "Creating signed tag $TAG"
-run_or_dry "git tag $TAG -m \"Release $VERSION\""
+log "Creating tag $TAG"
+run_or_dry "git tag -a $TAG -m \"Release $VERSION\""
 ok "Tag $TAG created"
 
 cat <<EOF
