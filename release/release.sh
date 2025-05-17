@@ -84,6 +84,10 @@ if git rev-parse "$TAG" >/dev/null 2>&1 || git ls-remote --tags origin "$TAG" | 
 fi
 ok "Tag is available: $TAG"
 
+log "Creating tag $TAG"
+run_or_dry "git tag -a $TAG -m \"Release $VERSION\""
+ok "Tag $TAG created"
+
 echo -e "${BLUE}Step 2: Updating changelog and version${NC}"
 
 log "Auto-generating changelog with conventional-changelog"
@@ -101,10 +105,6 @@ log "Committing version and changelog"
 run_or_dry "git add $CHANGELOG $VERSION_FILE"
 run_or_dry "git commit -m \"chore(release): $VERSION\""
 ok "Committed release changes"
-
-log "Creating tag $TAG"
-run_or_dry "git tag -a $TAG -m \"Release $VERSION\""
-ok "Tag $TAG created"
 
 cat <<EOF
 
