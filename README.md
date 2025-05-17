@@ -41,7 +41,7 @@ History of past releases lives under dated version headings once released.
 ## Release Script
 All release tasks are automated via the `scripts/release.sh` helper:
 
-It validates branch & working tree, bump version, overwrites VERSION, auto-generate changelog entries, commits both files and creates a signed Git tag vX.Y.Z.
+It validates branch & working tree, bump version, overwrites VERSION, auto-generate changelog entries, commits both files and creates a Git tag vX.Y.Z.
 
 To make sure it's executable run , `chmod +x scripts/release.sh`
 
