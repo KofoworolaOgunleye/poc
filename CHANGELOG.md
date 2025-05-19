@@ -2,6 +2,21 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.4.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.1.1...v2.4.0) (2025-05-19)
+
+
+### Features
+
+* adds ci ([2ee701a](https://github.com/KofoworolaOgunleye/poc/commit/2ee701a6314a2f49dc7f56b7eab8eb1c5be6b8d3))
+
+
+### Bug Fixes
+
+* adds push in ci ([fc0a941](https://github.com/KofoworolaOgunleye/poc/commit/fc0a941845dbaf98aac98012c00d7f72deab6af4))
+* permissions ([2daf698](https://github.com/KofoworolaOgunleye/poc/commit/2daf698aeadde2b350a9670250bddbe9edb44ed9))
+* release branch ([b999d3c](https://github.com/KofoworolaOgunleye/poc/commit/b999d3cd36df3c57d72a1cc56201845c9cde9276))
+* test something ([aadc2d1](https://github.com/KofoworolaOgunleye/poc/commit/aadc2d113695f7677a3530ad42648bcd1843e97f))
+
 ## [2.3.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.1.1...v2.3.0) (2025-05-19)
 
 
