@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [2.2.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.1.1...v2.2.0) (2025-05-19)
+
+
+### Features
+
+* adds ci ([2ee701a](https://github.com/KofoworolaOgunleye/poc/commit/2ee701a6314a2f49dc7f56b7eab8eb1c5be6b8d3))
+
 ### [2.1.1](https://github.com/KofoworolaOgunleye/poc/compare/v2.1.0...v2.1.1) (2025-05-19)
 
 
