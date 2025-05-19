@@ -91,7 +91,13 @@ ok "Tag $TAG created"
 echo -e "${BLUE}Step 2: Updating changelog and version${NC}"
 
 log "Auto-generating changelog with conventional-changelog"
-run_or_dry "npx conventional-changelog -p angular -i $CHANGELOG -s -r 0"
+run_or_dry "npx conventional-changelog\
+  -p angular \
+  -i CHANGELOG.md \
+  -s \
+  --tag-prefix 'v' \
+  --from-tag $(git ls-remote --tags origin | grep -v '{}' | tail -n1 | sed 's/.*\///') \
+  --to-tag HEAD"
 ok "CHANGELOG.md updated"
 
 log "Opening CHANGELOG.md to refine entries under '## [Unreleased]'"
