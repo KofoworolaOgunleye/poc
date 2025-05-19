@@ -53,7 +53,7 @@ ok "Release branch created with bumped commit"
 
 echo
 log "Pushing release branch and tags"
-git push -u origin "$RELEASE_BRANCH" --follow-tags || error "Failed to push tags or branch"
+git push -u origin "$RELEASE_BRANCH"|| error "Failed to push tags or branch"
 ok "Pushed release branch and tags"
 
 echo
