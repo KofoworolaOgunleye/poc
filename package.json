@@ -1,6 +1,6 @@
 {
   "name": "poc",
-  "version": "2.0.4",
+  "version": "2.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -12,7 +12,10 @@
   "standard-version": {
     "tagPrefix": "v",
     "bumpFiles": [
-      {"filename":"package.json","type":"json"}
+      {
+        "filename": "package.json",
+        "type": "json"
+      }
     ]
   },
   "repository": {
