@@ -95,6 +95,7 @@ run_or_dry "npx conventional-changelog\
   -p angular \
   -i CHANGELOG.md \
   -s \
+  -r 0 \
   --tag-prefix 'v' \
   --from-tag $(git ls-remote --tags origin | grep -v '{}' | tail -n1 | sed 's/.*\///') \
   --to-tag HEAD"
@@ -114,7 +115,7 @@ ok "Committed release changes"
 
 cat <<EOF
 
-${GREEN}Release complete! Run the following command${NC}
+${GREEN} Release complete! Run the following command ${NC}
 
 Next:
  1. Push commits & tag:

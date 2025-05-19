@@ -1,10 +1,4 @@
-# [1.0.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.0.3...v1.0.0) (2025-05-19)
-
-
-
 # Changelog
-
-All notable changes to this project will be documented here.
 
 ## [Unreleased]
 
