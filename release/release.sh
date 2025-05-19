@@ -64,7 +64,7 @@ gh pr create --base main --head "$RELEASE_BRANCH" \
 ok "Pull Request created"
 cat <<EOF
 
-${GREEN} Release branch and PR prep complete! ${NC}
+Release branch and PR prep complete!
 
 Next:
  1. Review and merge the release PR into main (protected branch).
