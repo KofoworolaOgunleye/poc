@@ -44,21 +44,6 @@ npm run release || error "standard-version failed"
 ok "standard-version complete"
 
 echo
-log "Creating release branch"
-RELEASE_BRANCH="release/v$(node -p "require('./package.json').version")"
-
-echo
-log "Pushing release branch and tags"
-git push -u origin HEAD --follow-tags || error "Failed to push tags or branch"
-ok "Pushed release branch and tags"
-
-log "Creating Pull Request for release"
-gh pr create --base main --head "$RELEASE_BRANCH" \
-  --title "chore(release): $(node -p "require('./package.json').version")" \
-  --body "This PR bumps the version to v$(node -p "require('./package.json').version") and updates the changelog."
-ok "Pull Request created"
-
-echo
 NEW_VERSION=$(node -p "require('./package.json').version")
 RELEASE_BRANCH="release/v${NEW_VERSION}"
 log "Creating release branch ${RELEASE_BRANCH}"
