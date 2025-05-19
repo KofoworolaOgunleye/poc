@@ -1,20 +1,25 @@
 name: Publish Release
 
 on:
-  push:
-    tags:
-      - 'v*.*.*'
+  pull_request:
+    types: [closed]
+    branches: [main]
 
 permissions:
   contents: write
-  
+
 jobs:
   publish:
+    if: >
+      github.event.pull_request.merged == true &&
+      startsWith(github.event.pull_request.head.ref, 'release/v')
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
         with:
-          fetch-depth: 0        # fetch all history so tags are available
+          fetch-depth: 0        # bring in full history and tags
 
       - name: Setup Node.js
         uses: actions/setup-node@v3
@@ -24,8 +29,9 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Push tags
+      - name: Push tags to main
         run: |
+          # After merge, main now has the bumped commit & tag
           git push origin main --follow-tags
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -33,8 +39,9 @@ jobs:
       - name: Create GitHub Release
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ github.ref_name }}       # branch push or tag push
-          release_name: Release ${{ github.ref_name }}
+          tag_name: ${{ github.event.pull_request.head.ref }}    # e.g. release/v2.1.0
+          release_name: Release ${{ github.event.pull_request.head.ref }}
           body_path: CHANGELOG.md
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  
