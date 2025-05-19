@@ -35,7 +35,7 @@ fi
 ok "Working directory clean, No uncommitted changes"
 
 log "Pulling latest changes from origin/main"
-run_or_dry "git pull origin main" || error "Failed to pull latest changes. Fix any conflicts before proceeding."
+git pull origin main" || error "Failed to pull latest changes. Fix any conflicts before proceeding.
 ok "Repo is up to date with origin/main"
 
 
