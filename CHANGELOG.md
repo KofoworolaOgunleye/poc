@@ -5,8 +5,6 @@ All notable changes to this project will be documented here.
 ## [Unreleased]
 
 
-
-
 ## [2.0.2](https://github.com/KofoworolaOgunleye/poc/compare/v2.0.1...v2.0.2) (2025-05-14)
 
 
@@ -48,22 +46,5 @@ All notable changes to this project will be documented here.
 * test ([0c906af](https://github.com/KofoworolaOgunleye/poc/commit/0c906afbf7977bb0b95ee49bac97ea76e33639c2))
 
 
-
-## [1.0.0-test](https://github.com/KofoworolaOgunleye/poc/compare/v1.0.0-tes...v1.0.0-test) (2025-03-25)
-
-
-### Features
-
-* change bucket name ([23da2a6](https://github.com/KofoworolaOgunleye/poc/commit/23da2a63a7d694ec4c21729cb3a7d0e118adc789))
-
-
-## [1.0.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.2.0...v1.0.0) (2025-05-17)
-
-
-### Features
-
-* wip ([46a32f5](https://github.com/KofoworolaOgunleye/poc/commit/46a32f5c1a379c341f81f1f54c9f9704cabdeb6c))
-* wip ([49b7005](https://github.com/KofoworolaOgunleye/poc/commit/49b70050af167211a39692fb046e2cb8d4c90b3b))
-* wip ([e6d9128](https://github.com/KofoworolaOgunleye/poc/commit/e6d9128d232cab926d56806bfe42370576470244))
 
 
