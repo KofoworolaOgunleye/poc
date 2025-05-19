@@ -1,3 +1,7 @@
+# [1.0.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.0.5...v1.0.0) (2025-05-19)
+
+
+
 ## [2.0.4](https://github.com/KofoworolaOgunleye/poc/compare/v2.0.3...v2.0.4) (2025-05-19)
 
 
