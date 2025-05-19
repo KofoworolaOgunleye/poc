@@ -41,7 +41,7 @@ ok "Repo is up to date with origin/main"
 log "Running standard-version"
 npm ci
 npm run release || error "standard-version failed"
-ok "standard-version complete"
+ok "Version bump, changelog update, commit, and tag complete"
 
 echo
 NEW_VERSION=$(node -p "require('./package.json').version")
@@ -64,7 +64,7 @@ gh pr create --base main --head "$RELEASE_BRANCH" \
 ok "Pull Request created"
 cat <<EOF
 
-${GREEN}Release branch and PR prep complete!${NC}
+${GREEN} Release branch and PR prep complete! ${NC}
 
 Next:
  1. Review and merge the release PR into main (protected branch).
