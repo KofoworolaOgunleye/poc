@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [2.1.1](https://github.com/KofoworolaOgunleye/poc/compare/v2.1.0...v2.1.1) (2025-05-19)
+
+
+### Bug Fixes
+
+* release branch issues ([d8cc796](https://github.com/KofoworolaOgunleye/poc/commit/d8cc796e3726198dee062dadeb4dbe6ccd9d2dd6))
+
 ## [2.1.0](https://github.com/KofoworolaOgunleye/poc/compare/v2.0.4...v2.1.0) (2025-05-19)
 
 
