@@ -32,16 +32,12 @@ BREAKING CHANGE: remove deprecated endpoint
 
 ## Changelog
 We keep a single CHANGELOG.md in the repo root.
-At all times it should contain at least:
-
-`## [Unreleased]`
-
 History of past releases lives under dated version headings once released.
 
 ## Release Script
 All release tasks are automated via the `scripts/release.sh` helper:
 
-It validates branch & working tree, bump version, overwrites VERSION, auto-generate changelog entries, commits both files and creates a Git tag vX.Y.Z.
+It validates branch & working tree, bump version, overwrites VERSION in `package.json`, auto-generate changelog entries, commits both files and creates a Git tag vX.Y.Z.
 
 To make sure it's executable run , `chmod +x scripts/release.sh`
 

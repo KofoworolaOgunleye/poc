@@ -2,6 +2,10 @@ name: Code checks on push
 
 on:
   push:
+    branches:
+      - main
+  pull_request:
+    types: [opened, synchronize, reopened]
 
 jobs:
   code-checks:
