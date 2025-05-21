@@ -37,6 +37,13 @@ jobs:
     needs: deploy
     if: needs.deploy.result == 'success' && github.event_name == 'release'
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        include:
+          - subdir: curriculum-api
+            workspace: ${{ vars.TF_WORKSPACE_API }}
+          - subdir: curriculum-backend
+            workspace: ${{ vars.TF_WORKSPACE_BACKEND }}
 
     steps:
       - name: Checkout code at tag
@@ -44,11 +51,32 @@ jobs:
         with:
           ref: ${{ github.event.release.tag_name }}
 
-      - name: Run Terraform Apply
+      - name: Terraform Apply
         uses: oaknational/oak-release-actions/actions/terraform_deploy@feat/multi-comment-for-multi-subdir
         with:
-          TAG_ID:               ${{ github.event.release.tag_name }}
-          TF_API_TOKEN:         ${{ secrets.TF_API_TOKEN }}
-          TF_BASE_SUBDIRECTORY: "api"
+          TAG_ID:                ${{ github.event.release.tag_name }}
+          TF_API_TOKEN:          ${{ secrets.TF_API_TOKEN }}
+          TF_BASE_SUBDIRECTORY:  ${{ matrix.subdir }}
           TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
-          TF_WORKSPACE:         "curr-kofo"
+          TF_WORKSPACE:          ${{ matrix.workspace }}
+
+  # beta_deploy:
+  #   name: Deploy to Beta
+  #   needs: deploy
+  #   if: needs.deploy.result == 'success' && github.event_name == 'release'
+  #   runs-on: ubuntu-latest
+
+  #   steps:
+  #     - name: Checkout code at tag
+  #       uses: actions/checkout@v3
+  #       with:
+  #         ref: ${{ github.event.release.tag_name }}
+
+  #     - name: Run Terraform Apply
+  #       uses: oaknational/oak-release-actions/actions/terraform_deploy@feat/multi-comment-for-multi-subdir
+  #       with:
+  #         TAG_ID:               ${{ github.event.release.tag_name }}
+  #         TF_API_TOKEN:         ${{ secrets.TF_API_TOKEN }}
+  #         TF_BASE_SUBDIRECTORY: "api"
+  #         TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
+  #         TF_WORKSPACE:         "curr-kofo"
