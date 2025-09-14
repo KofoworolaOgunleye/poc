@@ -1,0 +1,24 @@
+# name: AI PR Review
+
+# on:
+#   pull_request:
+#     types: [opened, synchronize]
+
+# permissions:
+#   contents: read
+#   pull-requests: write
+
+# jobs:
+#   ai-review:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout Repo
+#         uses: actions/checkout@v4
+
+#       - name: AI Code Reviewer
+#         # uses: kofoworolaogunleye/review-action/.github/workflows/ai-pr-review.yml@main
+#         uses: kofoworolaogunleye/review-action/actions/ai_pr_reviewer@main
+#         # secrets: for workflow
+#         with:
+#           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+#           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
