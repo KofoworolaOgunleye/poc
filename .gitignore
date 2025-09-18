@@ -9,3 +9,4 @@ terraform.rc
 *.tfvars.json
 .terraform/
 node_modules/
+.DS_Store
