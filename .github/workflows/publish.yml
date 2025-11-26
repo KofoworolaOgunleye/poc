@@ -52,3 +52,6 @@ jobs:
           TF_BASE_SUBDIRECTORY: "api"
           TF_CLOUD_ORGANIZATION: ${{ vars.TF_CLOUD_ORGANIZATION }}
           TF_WORKSPACE:         "curr-kofo"
+
+
+          
