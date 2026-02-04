@@ -31,8 +31,8 @@ jobs:
       #       });
         
       - name: AI Code Reviewer
-        uses: kofoworolaogunleye/review-action/actions/ai_pr_reviewer@feat/ai-pr
-        # uses: oaknational/oak-ai-pr-reviewer/actions/pr_reviewer@ENG-1351-implement-inline-reviews
+        # uses: kofoworolaogunleye/review-action/actions/ai_pr_reviewer@feat/ai-pr
+        uses: oaknational/oak-ai-pr-reviewer/actions/pr_reviewer@fix/fix-error
         with:
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}
           comment_id: ${{ github.event.comment.id }}
